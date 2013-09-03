@@ -10,7 +10,6 @@ class GradeReader
   def read
     CSV.foreach(@from_file, :headers => true) do |row|
       array = extract_grades(row)
-      # grades = build_grades(array)
       build_student(row, array)
     end
   end
@@ -23,35 +22,8 @@ class GradeReader
     array
   end
 
-  # def build_grades(array)
-  #   grades = []
-  #   array.each do |value|
-  #     grades << AssignmentGrade.new(value)
-  #   end
-  #   grades
-  # end
-
   def build_student(row, array)
     Student.new(row[0].strip, row[1].strip, array)
-  end
-end
-
-# class AssignmentGrade
-#   attr_reader :value
-#   @@total = []
-#   def initialize(value)
-#     @value = value
-#     @@total << self
-#   end
-
-#   def self.list
-#     @@total
-#   end
-# end
-
-class FinalGrade
-
-  def initialize
   end
 end
 
@@ -138,10 +110,38 @@ end
 class Classroom
   attr_reader :students, :grades
 
-  def initialize(filename)
-    GradeReader.new(filename).read
-    @students = Student.sort
-    @grades = GradeSummary.new
+  def initialize
+    filename = prompt_for_filename
+    test_array = read_test_file(filename)
+    if file_invalid?(test_array)
+      raise 'The file you specified contains invalid data'
+    else
+      GradeReader.new(filename).read
+      @students = Student.sort
+      @grades = GradeSummary.new
+    end
+  end
+
+  def prompt_for_filename
+    puts "Please specify a CSV file to load:"
+    filename = gets.chomp
+    while !(File.exists?(filename) && /.csv/.match(filename))
+      puts "The file you specified is invalid. Please enter it again:"
+      filename = gets.chomp
+    end
+    filename
+  end
+
+  def read_test_file(filename)
+    test_array = []
+    File.open(filename, 'r').each_line do |line|
+      test_array << line.split(',')
+    end
+    test_array
+  end
+
+  def file_invalid?(test_array)
+    test_array[1..-1].any? { |row| row.size != test_array[0].size }
   end
 
   def display_all_grades
@@ -189,25 +189,7 @@ class Classroom
 end
 
 
-# puts "Please specify a .CSV file to load:"
-# filepath = gets.chomp
-# while !(File.exists?(filepath) && /.csv/.match(filepath))
-#   puts "The file you specified is invalid. Please enter it again:"
-#   filepath = gets.chomp
-# end
-
-# test_array = []
-# File.open(filepath, 'r').each_line do |line|
-#   test_array << line.split(',')
-# end
-
-# if test_array[1..-1].any? { |row| row.size != test_array[0].size }
-#   raise 'The file you specified contains invalid data'
-# end
-
-
-
-new_classroom = Classroom.new("students.csv")
+new_classroom = Classroom.new
 puts "ALL GRADES"
 new_classroom.display_all_grades
 puts ""
@@ -223,7 +205,3 @@ new_classroom.display_class_min
 new_classroom.display_class_max
 new_classroom.display_class_sdiv
 new_classroom.write_to_csv
-
-
-
-

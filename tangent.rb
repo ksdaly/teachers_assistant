@@ -55,13 +55,13 @@ class Student
     classroom.sort_by {|student| [student.last_name,student.first_name]}
   end
 
-  def self.all_grades
-    grades = []
-    classroom.each do |student|
-      grades << student.grades
-    end
-    grades.flatten!
-  end
+  # def self.all_grades
+  #   grades = []
+  #   classroom.each do |student|
+  #     grades << student.grades
+  #   end
+  #   grades.flatten!
+  # end
 
   def self.grade_count
     all_grades.size
@@ -91,8 +91,20 @@ class Student
   def self.class_standard_deviation
     Math.sqrt(class_variance).round(1)
   end
-
 end
+
+class GradeSummary
+  attr_reader :grades
+
+  def innitialize
+    @grades = []
+    classroom.each do |student|
+      @grades << student.grades
+    end
+    @grades.flatten!
+  end
+end
+
 
 class Classroom
   attr_reader :students
@@ -146,10 +158,11 @@ new_classroom.display_average_grades
 puts "LETTER GRADES"
 new_classroom.display_letter_grades
 puts "CLASS AVERAGES"
-new_classroom.display_class_average
-new_classroom.display_class_min
-new_classroom.display_class_max
-new_classroom.display_class_sdiv
+# new_classroom.display_class_average
+# new_classroom.display_class_min
+# new_classroom.display_class_max
+# new_classroom.display_class_sdiv
+puts GradeSummary.new.inspect
 
 
 

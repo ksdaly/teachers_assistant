@@ -223,7 +223,7 @@ new_classroom.display_class_min
 new_classroom.display_class_max
 new_classroom.display_class_sdiv
 new_classroom.write_to_csv
-binding.pry
+
 
 
 

@@ -54,64 +54,57 @@ class Student
   def self.sort
     classroom.sort_by {|student| [student.last_name,student.first_name]}
   end
-
-  # def self.all_grades
-  #   grades = []
-  #   classroom.each do |student|
-  #     grades << student.grades
-  #   end
-  #   grades.flatten!
-  # end
-
-  def self.grade_count
-    all_grades.size
-  end
-
-  def self.grade_sum
-    all_grades.reduce(:+)
-  end
-
-  def self.class_average
-    grade_sum/grade_count
-  end
-
-  def self.class_min
-    all_grades.min
-  end
-
-  def self.class_max
-    all_grades.max
-  end
-
-  def self.class_variance
-    sum = all_grades.inject(0){|sum, n| sum + (n - class_average) ** 2}
-    (1 / grade_count.to_f * sum)
-  end
-
-  def self.class_standard_deviation
-    Math.sqrt(class_variance).round(1)
-  end
 end
 
 class GradeSummary
   attr_reader :grades
 
-  def innitialize
+  def initialize
     @grades = []
-    classroom.each do |student|
+    Student.classroom.each do |student|
       @grades << student.grades
     end
     @grades.flatten!
+  end
+
+  def grade_count
+    grades.size
+  end
+
+  def grade_sum
+    grades.inject(:+)
+  end
+
+  def class_average
+    grade_sum/grade_count
+  end
+
+  def class_min
+    grades.min
+  end
+
+  def class_max
+    grades.max
+  end
+
+  def class_variance
+    sum = grades.inject(0){|sum, n| sum + (n - class_average) ** 2}
+    (1 / grade_count.to_f * sum)
+  end
+
+  def class_standard_deviation
+    Math.sqrt(class_variance).round(1)
   end
 end
 
 
 class Classroom
-  attr_reader :students
+  attr_reader :students, :grades
 
   def initialize(filename)
     GradeReader.new(filename).read
     @students = Student.sort
+    @grades = GradeSummary.new
   end
 
   def display_all_grades
@@ -133,21 +126,29 @@ class Classroom
   end
 
   def display_class_average
-    puts "Class average: #{Student.class_average}"
+    puts "Class average: #{grades.class_average}"
   end
 
   def display_class_min
-    puts "Class min: #{Student.class_min}"
+    puts "Class min: #{grades.class_min}"
   end
 
   def display_class_max
-    puts "Class max: #{Student.class_max}"
+    puts "Class max: #{grades.class_max}"
   end
 
   def display_class_sdiv
-    puts "Class standard deviation: #{Student.class_standard_deviation}"
+    puts "Class standard deviation: #{grades.class_standard_deviation}"
   end
 
+  def write_to_csv
+    CSV.open("student_report.csv", "wb") do |csv|
+      csv << ["last name", "first name", "average grade", "final grade"]
+      students.each do |student|
+        csv << [student.last_name, student.first_name, student.average, student.letter_grade]
+      end
+    end
+  end
 end
 
 new_classroom = Classroom.new("students.csv")
@@ -158,11 +159,11 @@ new_classroom.display_average_grades
 puts "LETTER GRADES"
 new_classroom.display_letter_grades
 puts "CLASS AVERAGES"
-# new_classroom.display_class_average
-# new_classroom.display_class_min
-# new_classroom.display_class_max
-# new_classroom.display_class_sdiv
-puts GradeSummary.new.inspect
+new_classroom.display_class_average
+new_classroom.display_class_min
+new_classroom.display_class_max
+new_classroom.display_class_sdiv
+new_classroom.write_to_csv
 
 
 

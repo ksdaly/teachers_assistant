@@ -10,6 +10,7 @@ class GradeReader
   def read
     CSV.foreach(@from_file, :headers => true) do |row|
       array = extract_grades(row)
+      # grades = build_grades(array)
       build_student(row, array)
     end
   end
@@ -22,8 +23,35 @@ class GradeReader
     array
   end
 
+  # def build_grades(array)
+  #   grades = []
+  #   array.each do |value|
+  #     grades << AssignmentGrade.new(value)
+  #   end
+  #   grades
+  # end
+
   def build_student(row, array)
     Student.new(row[0].strip, row[1].strip, array)
+  end
+end
+
+# class AssignmentGrade
+#   attr_reader :value
+#   @@total = []
+#   def initialize(value)
+#     @value = value
+#     @@total << self
+#   end
+
+#   def self.list
+#     @@total
+#   end
+# end
+
+class FinalGrade
+
+  def initialize
   end
 end
 
@@ -161,25 +189,25 @@ class Classroom
 end
 
 
-puts "Please specify a .CSV file to load:"
-filepath = gets.chomp
-while !(File.exists?(filepath) && /.csv/.match(filepath))
-  puts "The file you specified is invalid. Please enter it again:"
-  filepath = gets.chomp
-end
+# puts "Please specify a .CSV file to load:"
+# filepath = gets.chomp
+# while !(File.exists?(filepath) && /.csv/.match(filepath))
+#   puts "The file you specified is invalid. Please enter it again:"
+#   filepath = gets.chomp
+# end
 
-test_array = []
-File.open(filepath, 'r').each_line do |line|
-  test_array << line.split(',')
-end
+# test_array = []
+# File.open(filepath, 'r').each_line do |line|
+#   test_array << line.split(',')
+# end
 
-if test_array[1..-1].any? { |row| row.size != test_array[0].size }
-  raise 'The file you specified contains invalid data'
-end
+# if test_array[1..-1].any? { |row| row.size != test_array[0].size }
+#   raise 'The file you specified contains invalid data'
+# end
 
 
 
-new_classroom = Classroom.new(filepath)
+new_classroom = Classroom.new("students.csv")
 puts "ALL GRADES"
 new_classroom.display_all_grades
 puts ""
@@ -195,7 +223,7 @@ new_classroom.display_class_min
 new_classroom.display_class_max
 new_classroom.display_class_sdiv
 new_classroom.write_to_csv
-
+binding.pry
 
 
 

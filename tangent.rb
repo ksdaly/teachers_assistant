@@ -9,12 +9,13 @@ class GradeReader
 
   def read
     CSV.foreach(@from_file, :headers => true) do |row|
+
       build_student(row)
     end
   end
 
   def build_student(row)
-    Student.new(row[0], row[1], [row[2].to_i, row[3].to_i, row[4].to_i, row[5].to_i, row[6].to_i] )
+    Student.new(row[0].strip, row[1].strip, [row[2].to_i, row[3].to_i, row[4].to_i, row[5].to_i, row[6].to_i] )
   end
 end
 
@@ -151,13 +152,35 @@ class Classroom
   end
 end
 
-new_classroom = Classroom.new("students.csv")
+
+puts "Please specify a .CSV file to load:"
+filepath = gets.chomp
+while !(File.exists?(filepath) && /.csv/.match(filepath))
+  puts "The file you specified is invalid. Please enter it again:"
+  filepath = gets.chomp
+end
+
+test_array = []
+File.open(filepath, 'r').each_line do |line|
+  test_array << line.split(',')
+end
+
+if test_array[1..-1].any? { |row| row.size != test_array[0].size }
+  raise 'The file you specified contains invalid data'
+end
+
+
+
+new_classroom = Classroom.new(filepath)
 puts "ALL GRADES"
 new_classroom.display_all_grades
+puts ""
 puts "AVERAGE  GRADE"
 new_classroom.display_average_grades
+puts ""
 puts "LETTER GRADES"
 new_classroom.display_letter_grades
+puts ""
 puts "CLASS AVERAGES"
 new_classroom.display_class_average
 new_classroom.display_class_min

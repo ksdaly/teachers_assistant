@@ -9,13 +9,21 @@ class GradeReader
 
   def read
     CSV.foreach(@from_file, :headers => true) do |row|
-
-      build_student(row)
+      array = extract_grades(row)
+      build_student(row, array)
     end
   end
 
-  def build_student(row)
-    Student.new(row[0].strip, row[1].strip, [row[2].to_i, row[3].to_i, row[4].to_i, row[5].to_i, row[6].to_i] )
+  def extract_grades(row)
+    array = []
+      (2...row.length).each do |i|
+        array << row[i].to_i
+    end
+    array
+  end
+
+  def build_student(row, array)
+    Student.new(row[0].strip, row[1].strip, array)
   end
 end
 

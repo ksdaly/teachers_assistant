@@ -79,18 +79,19 @@ class Student
   def average
     (grades.inject(:+) / grades.size.to_f).round(1)
   end
-#rewrite with case
+
   def letter_grade
-    if average >= 90
-      return "A"
-    elsif average >= 80
-      return "B"
-    elsif average >= 70
-      return "C"
-    elsif average >= 60
-      return "D"
-    else
-      return "F"
+    case
+      when average >= 90
+        return "A"
+      when average >= 80
+        return "B"
+      when average >= 70
+        return "C"
+      when average >= 60
+        return "D"
+      else
+        return "F"
     end
   end
 
@@ -141,7 +142,7 @@ public
 end
 
 
-class Classroom
+class ReportOutputter
   attr_reader :students, :grades
 
   def initialize
@@ -149,8 +150,6 @@ class Classroom
       @students = Student.sort
       @grades = GradeSummary.new
   end
-
-
 
   def display_all_grades
     students.each do |student|
@@ -197,19 +196,19 @@ class Classroom
 end
 
 
-new_classroom = Classroom.new
+new_report = ReportOutputter.new
 puts "ALL GRADES"
-new_classroom.display_all_grades
+new_report.display_all_grades
 puts ""
 puts "AVERAGE  GRADE"
-new_classroom.display_average_grades
+new_report.display_average_grades
 puts ""
 puts "LETTER GRADES"
-new_classroom.display_letter_grades
+new_report.display_letter_grades
 puts ""
 puts "CLASS AVERAGES"
-new_classroom.display_class_average
-new_classroom.display_class_min
-new_classroom.display_class_max
-new_classroom.display_class_sdiv
-new_classroom.write_to_csv
+new_report.display_class_average
+new_report.display_class_min
+new_report.display_class_max
+new_report.display_class_sdiv
+new_report.write_to_csv

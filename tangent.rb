@@ -64,16 +64,16 @@ end
 class Student
   attr_accessor :first_name, :last_name, :grades
 
-  @@classroom = []
+  @@report = []
   def initialize(first_name, last_name, grades)
     @first_name = first_name
     @last_name = last_name
     @grades = grades
-    Student.classroom << self
+    Student.report << self
   end
 
-  def self.classroom
-    @@classroom
+  def self.report
+    @@report
   end
 
   def average
@@ -95,7 +95,7 @@ class Student
   end
 
   def self.sort
-    classroom.sort_by {|student| [student.last_name,student.first_name]}
+    report.sort_by {|student| [student.last_name,student.first_name]}
   end
 end
 
@@ -104,7 +104,7 @@ class GradeSummary
 
   def initialize
     @grades = []
-    Student.classroom.each do |student|
+    Student.report.each do |student|
       @grades << student.grades
     end
     @grades.flatten!

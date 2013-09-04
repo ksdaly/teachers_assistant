@@ -3,17 +3,24 @@ require 'csv'
 
 class GradeReader
   attr_accessor :from_file
-  def initialize(from_file)
-    @from_file = from_file
+
+  def initialize
+    filename = prompt_for_filename
+    if file_invalid?(read_test_file(filename))
+      raise 'The file you specified contains invalid data'
+    else
+      @from_file = filename
+    end
   end
 
   def read
     CSV.foreach(@from_file, :headers => true) do |row|
-      binding.pry
       array = extract_grades(row)
       build_student(row, array)
     end
   end
+
+  private
 
   def extract_grades(row)
     array = []
@@ -25,6 +32,32 @@ class GradeReader
 
   def build_student(row, array)
     Student.new(row[0].strip, row[1].strip, array)
+  end
+
+  def prompt_for_filename
+    puts "Please specify a CSV file to load:"
+    filename = gets.chomp
+    while !valid_csv?(filename)
+      puts "The file you specified is invalid. Please enter it again:"
+      filename = gets.chomp
+    end
+    filename
+  end
+
+  def valid_csv?(filename)
+    (File.exists?(filename) && /.csv/.match(filename))
+  end
+
+  def read_test_file(filename)
+    test_array = []
+    File.open(filename, 'r').each_line do |line|
+      test_array << line.split(',')
+    end
+    test_array
+  end
+
+  def file_invalid?(test_array)
+    test_array[1..-1].any? { |row| row.size != test_array[0].size }
   end
 end
 
@@ -112,38 +145,12 @@ class Classroom
   attr_reader :students, :grades
 
   def initialize
-    filename = prompt_for_filename
-    test_array = read_test_file(filename)
-    if file_invalid?(test_array)
-      raise 'The file you specified contains invalid data'
-    else
-      GradeReader.new(filename).read
+      GradeReader.new.read
       @students = Student.sort
       @grades = GradeSummary.new
-    end
   end
 
-  def prompt_for_filename
-    puts "Please specify a CSV file to load:"
-    filename = gets.chomp
-    while !(File.exists?(filename) && /.csv/.match(filename))
-      puts "The file you specified is invalid. Please enter it again:"
-      filename = gets.chomp
-    end
-    filename
-  end
 
-  def read_test_file(filename)
-    test_array = []
-    File.open(filename, 'r').each_line do |line|
-      test_array << line.split(',')
-    end
-    test_array
-  end
-
-  def file_invalid?(test_array)
-    test_array[1..-1].any? { |row| row.size != test_array[0].size }
-  end
 
   def display_all_grades
     students.each do |student|

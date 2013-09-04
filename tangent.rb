@@ -111,14 +111,6 @@ class GradeSummary
     @grades.flatten!
   end
 
-  def grade_count
-    grades.size
-  end
-
-  def grade_sum
-    grades.inject(:+)
-  end
-
   def class_average
     grade_sum/grade_count
   end
@@ -130,14 +122,24 @@ class GradeSummary
   def class_max
     grades.max
   end
-private
+
+  def class_standard_deviation
+    Math.sqrt(class_variance).round(1)
+  end
+
+  private
+
+  def grade_count
+    grades.size
+  end
+
+  def grade_sum
+    grades.inject(:+)
+  end
+
   def class_variance
     sum = grades.inject(0){|sum, n| sum + (n - class_average) ** 2}
     (1 / grade_count.to_f * sum)
-  end
-public
-  def class_standard_deviation
-    Math.sqrt(class_variance).round(1)
   end
 end
 
@@ -146,9 +148,8 @@ class ReportOutputter
   attr_reader :students, :grades
 
   def initialize
-      GradeReader.new.read
-      @students = Student.sort
-      @grades = GradeSummary.new
+    @students = Student.sort
+    @grades = GradeSummary.new
   end
 
   def display_all_grades
@@ -184,9 +185,18 @@ class ReportOutputter
   def display_class_sdiv
     puts "Class standard deviation: #{grades.class_standard_deviation}"
   end
+end
 
-  def write_to_csv
-    CSV.open("student_report.csv", "wb") do |csv|
+class FileOutputter < ReportOutputter
+  attr_reader :filename, :students
+
+  def initialize(filename)
+    @students = Student.sort
+    @filename = filename
+  end
+
+  def write
+    CSV.open(filename, "wb") do |csv|
       csv << ["last name", "first name", "average grade", "final grade"]
       students.each do |student|
         csv << [student.last_name, student.first_name, student.average, student.letter_grade]
@@ -195,7 +205,7 @@ class ReportOutputter
   end
 end
 
-
+GradeReader.new.read
 new_report = ReportOutputter.new
 puts "ALL GRADES"
 new_report.display_all_grades
@@ -211,4 +221,5 @@ new_report.display_class_average
 new_report.display_class_min
 new_report.display_class_max
 new_report.display_class_sdiv
-new_report.write_to_csv
+new_csv = FileOutputter.new("student_report.csv")
+new_csv.write

@@ -9,6 +9,7 @@ class GradeReader
 
   def read
     CSV.foreach(@from_file, :headers => true) do |row|
+      binding.pry
       array = extract_grades(row)
       build_student(row, array)
     end
@@ -45,7 +46,7 @@ class Student
   def average
     (grades.inject(:+) / grades.size.to_f).round(1)
   end
-
+#rewrite with case
   def letter_grade
     if average >= 90
       return "A"
@@ -95,12 +96,12 @@ class GradeSummary
   def class_max
     grades.max
   end
-
+private
   def class_variance
     sum = grades.inject(0){|sum, n| sum + (n - class_average) ** 2}
     (1 / grade_count.to_f * sum)
   end
-
+public
   def class_standard_deviation
     Math.sqrt(class_variance).round(1)
   end
